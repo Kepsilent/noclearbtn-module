@@ -1,2 +1,0 @@
--keep class io.github.kepsilent.noclearbtn.NoClearBtnHook
--dontwarn
