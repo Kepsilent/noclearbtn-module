@@ -2,7 +2,7 @@
 
 Removes the **clear-all button** in the ColorOS recents panel, so your background tasks are never wiped out by an accidental tap. A standalone LSPosed module rewritten from [fentia/RecentsNoClear](https://github.com/fentia/RecentsNoClear) (GPL-3.0).
 
-**Mechanism-level compatible** · no version whitelist · **4.3KB** · device reports welcome
+**Mechanism-level compatible** · no version whitelist · **4.8KB** · device reports welcome
 
 ## Features
 
@@ -12,7 +12,7 @@ Removes the **clear-all button** in the ColorOS recents panel, so your backgroun
 
 - **Enable and done**: no UI, no settings, no launcher icon; static-scope preload, zero configuration
 
-- **4.3KB**: 3.0KB dex + minimal manifest + xposed trio; no Kotlin/Compose/androidx dead weight
+- **4.8KB**: 3.0KB dex + minimal manifest + xposed trio; no Kotlin/Compose/androidx dead weight
 
 ## Install & Use
 
@@ -43,7 +43,7 @@ Requires JDK 17+, Android SDK (platform 34), libxposed API 102.
 ```
 export ANDROID_HOME=/path/to/android-sdk
 ./build.sh
-# output: release/NoClearBtn-v1.0.apk
+# output: release/NoClearBtn-v1.1.apk
 ```
 
 Pipeline: `javac --release 8 → R8 → aapt2 link → zip reassembly → self-signed v2` (see `build.sh` in the repo root; targets 4KB-class size).
@@ -51,7 +51,7 @@ Pipeline: `javac --release 8 → R8 → aapt2 link → zip reassembly → self-s
 ## Verify
 
 ```
-apksigner verify --verbose release/NoClearBtn-v1.0.apk
+apksigner verify --verbose release/NoClearBtn-v1.1.apk
 # expect: Verifies · Verified using v2 scheme: true
 ```
 
@@ -81,7 +81,7 @@ build.sh                     # one-shot 4KB-class build
 | Version | Size | Notes |
 |---|---|---|
 | fentia/RecentsNoClear v1.0 | 16.8 KB | original, with hot-reload plumbing & redundant fallbacks |
-| **NoClearBtn v1.0** | **4.3 KB** | single-point hook rewrite + R8 + compact v2 signature (−74%) |
+| **NoClearBtn v1.1** | **4.8 KB** | single-point hook rewrite + R8 + compact v2 signature (−71%) |
 
 ## License
 

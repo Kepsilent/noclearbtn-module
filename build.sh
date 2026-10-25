@@ -77,8 +77,8 @@ cd_off = struct.unpack("<I", src[eocd_off+16:eocd_off+20])[0]
 entries, cd = src[:cd_off], src[cd_off:eocd_off]
 eocd = bytearray(src[eocd_off:])
 struct.pack_into("<I", eocd, 16, len(entries) + len(block))
-open("release/NoClearBtn-v1.0.apk","wb").write(entries + block + cd + bytes(eocd))
-print("size:", os.path.getsize("release/NoClearBtn-v1.0.apk"), "bytes")
+open("release/NoClearBtn-v1.1.apk","wb").write(entries + block + cd + bytes(eocd))
+print("size:", os.path.getsize("release/NoClearBtn-v1.1.apk"), "bytes")
 PY
-"$APKSIGNER" verify --verbose release/NoClearBtn-v1.0.apk | head -3
-echo "DONE: release/NoClearBtn-v1.0.apk"
+"$APKSIGNER" verify --verbose release/NoClearBtn-v1.1.apk | head -3
+echo "DONE: release/NoClearBtn-v1.1.apk"

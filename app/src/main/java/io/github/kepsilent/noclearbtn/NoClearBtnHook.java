@@ -1,5 +1,6 @@
 package io.github.kepsilent.noclearbtn;
 
+import android.util.Log;
 import android.view.View;
 
 import java.lang.reflect.Field;
@@ -9,6 +10,7 @@ import io.github.libxposed.api.XposedModule;
 
 public class NoClearBtnHook extends XposedModule {
 
+    private static final String TAG = "NoClearBtn";
     private static Field btn;
 
     @Override
@@ -18,16 +20,30 @@ public class NoClearBtnHook extends XposedModule {
         try {
             Class<?> panel = Class.forName("com.oplus.quickstep.views.OplusClearAllPanelView", false, param.getClassLoader());
             btn = findFieldByType(panel, "com.android.launcher.views.PressFeedbackButton");
+            Log.i(TAG, "init pkg=" + p + " panel=" + (panel != null) + " btn=" + (btn != null));
             if (btn == null) return;
             btn.setAccessible(true);
-            Method m = findMethod(panel, "inflateIfNeeded");
-            if (m == null) m = findMethod(panel, "onFinishInflate");
-            if (m != null) hook(m).intercept(c -> {
-                Object r = c.proceed();
-                hide(c.getThisObject());
-                return r;
-            });
-        } catch (Throwable ignored) {
+            Method m = findMethod(panel, "inflateIfNeeded", false);
+            if (m == null) m = findMethod(panel, "onFinishInflate", false);
+            if (m != null) {
+                Log.i(TAG, "hook inflate: " + m.getName());
+                hook(m).intercept(c -> {
+                    Object r = c.proceed();
+                    hide(c.getThisObject());
+                    return r;
+                });
+            }
+            Method a = findMethod(panel, "setAlpha", true);
+            if (a != null) {
+                Log.i(TAG, "hook setAlpha");
+                hook(a).intercept(c -> {
+                    Object r = c.proceed();
+                    hide(c.getThisObject());
+                    return r;
+                });
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "init fail: " + t);
         }
     }
 
@@ -38,12 +54,14 @@ public class NoClearBtnHook extends XposedModule {
         return null;
     }
 
-    private static Method findMethod(Class<?> c, String n) {
+    private static Method findMethod(Class<?> c, String n, boolean flt) {
         Method fb = null;
         for (Class<?> cur = c; cur != null; cur = cur.getSuperclass())
             for (Method m : cur.getDeclaredMethods()) {
                 if (!m.getName().equals(n)) continue;
-                if (m.getParameterCount() == 0) return m;
+                if (flt) {
+                    if (m.getParameterCount() == 1 && m.getParameterTypes()[0] == float.class) return m;
+                } else if (m.getParameterCount() == 0) return m;
                 if (fb == null) fb = m;
             }
         return fb;
@@ -53,7 +71,8 @@ public class NoClearBtnHook extends XposedModule {
         try {
             View v = (View) btn.get(o);
             if (v != null) v.setVisibility(View.GONE);
-        } catch (Throwable ignored) {
+        } catch (Throwable t) {
+            Log.i(TAG, "hide fail: " + t);
         }
     }
 }

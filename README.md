@@ -2,7 +2,7 @@
 
 把 ColorOS 最近任务面板的**「一键清除」按钮**直接干掉。 从 [fentia/RecentsNoClear](https://github.com/fentia/RecentsNoClear)（GPL-3.0）重写而来的独立 LSPosed 模块。
 
-**机制级兼容** · 无版本白名单 · **4.3KB** · 欢迎实测机型反馈
+**机制级兼容** · 无版本白名单 · **4.8KB** · 欢迎实测机型反馈
 
 ## 特性
 
@@ -12,7 +12,7 @@
 
 - **启用即生效**：无界面、无设置、无桌面图标，静态作用域预加载；模块启用后无需任何配置
 
-- **4.3KB**：dex 3.0KB + 最小清单 + 三件套；零死重（无 Kotlin/Compose/androidx）
+- **4.8KB**：dex 3.0KB + 最小清单 + 三件套；零死重（无 Kotlin/Compose/androidx）
 
 ## 安装与使用
 
@@ -43,7 +43,7 @@
 ```
 export ANDROID_HOME=/path/to/android-sdk
 ./build.sh
-# 产物：release/NoClearBtn-v1.0.apk
+# 产物：release/NoClearBtn-v1.1.apk
 ```
 
 构建链：`javac --release 8 → R8 → aapt2 link → zip 重组 → 自签 v2`（脚本见仓库根目录 `build.sh`，目标 4KB 级体积）。
@@ -51,7 +51,7 @@ export ANDROID_HOME=/path/to/android-sdk
 ## 验证
 
 ```
-apksigner verify --verbose release/NoClearBtn-v1.0.apk
+apksigner verify --verbose release/NoClearBtn-v1.1.apk
 # 期望：Verifies · Verified using v2 scheme: true
 ```
 
@@ -81,7 +81,7 @@ build.sh                     # 4KB 级一键构建
 | 版本 | 体积 | 说明 |
 |---|---|---|
 | fentia/RecentsNoClear v1.0 | 16.8 KB | 原版，含热重载输送与冗余 fallback |
-| **NoClearBtn v1.0** | **4.3 KB** | 单点 hook 重写 + R8 收缩 + 紧凑 v2 签名（−76%） |
+| **NoClearBtn v1.1** | **4.8 KB** | 单点 hook 重写 + R8 收缩 + 紧凑 v2 签名（−76%） |
 
 ## 许可
 
