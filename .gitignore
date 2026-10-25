@@ -1,0 +1,6 @@
+# local-only, never pushed
+RELEASE_GUIDE.md
+release/*.apk
+*.keystore
+key.*
+cert.*
