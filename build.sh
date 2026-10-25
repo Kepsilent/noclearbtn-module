@@ -38,23 +38,29 @@ echo "[3/6] aapt2 compile + link"
   --manifest app/src/main/AndroidManifest.xml \
   -I "$SDK/platforms/android-34/android.jar" build/res.zip
 
-echo "[4/6] zip reassembly (deflate)"
-python3 - "$AAPT2" <<'PY'
-import sys, zipfile, os
+echo "[4/6] zip reassembly (arsc STORED + deflate)"
+python3 - <<'PY'
+import zipfile, os
 src = zipfile.ZipFile("build/unsigned.apk")
 out = zipfile.ZipFile("build/asm.apk", "w", zipfile.ZIP_DEFLATED, compresslevel=9)
-for n in ("AndroidManifest.xml", "resources.arsc"):
-    out.writestr(n, src.read(n))
+out.writestr("AndroidManifest.xml", src.read("AndroidManifest.xml"))
+z = zipfile.ZipInfo("resources.arsc")
+out.writestr(z, src.read("resources.arsc"), compress_type=zipfile.ZIP_STORED)
 out.writestr("classes.dex", open("build/r8/classes.dex","rb").read())
 for n in ("java_init.list", "module.prop", "scope.list"):
     out.writestr("META-INF/xposed/"+n, open("app/src/main/xposed/"+n, "rb").read())
 out.close()
 PY
 
+echo "[4b/6] zipalign (force arsc 4-byte align)"
+ZIPALIGN="$(ls "$SDK"/build-tools/*/zipalign | tail -1)"
+"$ZIPALIGN" -p -f 4 build/asm.apk build/aligned.apk
+"$ZIPALIGN" -c -p 4 build/aligned.apk && echo "alignment OK"
+
 echo "[5/6] self-sign v2 (apksig block generator)"
 "$JDK/bin/javac" -cp "$LIB_DIR/apksig-jar" -d build/verify scripts/GenFinal.java
 "$JDK/bin/java" -cp "$LIB_DIR/apksig-jar:build/verify" GenFinal \
-  build/asm.apk "$KEY_DIR/key-ncb.der" "$KEY_DIR/cert-ncb.pem" build/block.bin
+  build/aligned.apk "$KEY_DIR/key-ncb.der" "$KEY_DIR/cert-ncb.pem" build/block.bin
 
 echo "[6/6] assemble + verify"
 python3 - <<'PY'
@@ -65,7 +71,7 @@ size = len(content) + 36
 block = struct.pack("<q", size) + struct.pack("<q", pair_len) \
       + struct.pack("<I", 0x7109871a) + content \
       + struct.pack("<q", size) + b"APK Sig Block 42"
-src = open("build/asm.apk","rb").read()
+src = open("build/aligned.apk","rb").read()
 eocd_off = src.rfind(b"PK\x05\x06")
 cd_off = struct.unpack("<I", src[eocd_off+16:eocd_off+20])[0]
 entries, cd = src[:cd_off], src[cd_off:eocd_off]
